@@ -90,5 +90,4 @@ To clear the database:
 docker-compose down -v
 ```
 
----
-Built during ET Hackathon 2024.
+
