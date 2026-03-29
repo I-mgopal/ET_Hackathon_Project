@@ -27,10 +27,10 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 # Get LLM API key
-LLM_API_KEY = os.environ.get('EMERGENT_LLM_KEY')
+LLM_API_KEY = os.environ.get('GROQ_API_KEY') or os.environ.get('EMERGENT_LLM_KEY')
 
 if not LLM_API_KEY:
-    logging.warning("EMERGENT_LLM_KEY not found in environment variables")
+    logging.warning("GROQ_API_KEY or EMERGENT_LLM_KEY not found in environment variables")
 
 # Models
 class ProfileInput(BaseModel):
@@ -70,7 +70,7 @@ async def profiler_agent(profile_data: Dict[str, Any]) -> Dict[str, Any]:
             api_key=LLM_API_KEY,
             session_id=f"profiler_{uuid.uuid4()}",
             system_message="You are a financial data validator for an Indian tax planning tool."
-        ).with_model("anthropic", "claude-sonnet-4-5-20250929")
+        ).with_model("groq", "llama3-70b-8192")
         
         prompt = f"""Given this user input: {json.dumps(profile_data)}
 
@@ -138,7 +138,7 @@ async def scorer_agent(profile: Dict[str, Any]) -> Dict[str, Any]:
             api_key=LLM_API_KEY,
             session_id=f"scorer_{uuid.uuid4()}",
             system_message="You are a financial health scoring engine for Indian users."
-        ).with_model("anthropic", "claude-sonnet-4-5-20250929")
+        ).with_model("groq", "llama3-70b-8192")
         
         prompt = f"""You are a financial health scoring engine. Given this Indian user profile:
 {json.dumps(profile)}
@@ -224,7 +224,7 @@ async def calc_agent(profile: Dict[str, Any]) -> Dict[str, Any]:
             api_key=LLM_API_KEY,
             session_id=f"calc_{uuid.uuid4()}",
             system_message="You are a precise Indian tax calculator for FY2025-26."
-        ).with_model("anthropic", "claude-sonnet-4-5-20250929")
+        ).with_model("groq", "llama3-70b-8192")
         
         prompt = f"""You are a precise Indian tax calculator for FY2025-26. Calculate tax for this user:
 {json.dumps(profile)}
@@ -302,7 +302,7 @@ async def advisory_agent(profile: Dict[str, Any], tax_result: Dict[str, Any]) ->
             api_key=LLM_API_KEY,
             session_id=f"advisory_{uuid.uuid4()}",
             system_message="You are a financial advisor identifying tax-saving opportunities for Indian professionals."
-        ).with_model("anthropic", "claude-sonnet-4-5-20250929")
+        ).with_model("groq", "llama3-70b-8192")
         
         prompt = f"""You are a financial advisor identifying tax-saving opportunities for an Indian salaried professional.
 

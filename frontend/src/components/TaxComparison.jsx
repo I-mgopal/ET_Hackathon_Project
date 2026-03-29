@@ -1,9 +1,14 @@
 import React from 'react';
-import { Check, TrendingUp } from 'lucide-react';
+import { Check, TrendingUp, BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { formatIndianCurrency, formatPercentage } from '../utils/formatters';
 
 const TaxComparison = ({ data }) => {
   const { oldRegime, newRegime, winner, savings, recommendation } = data;
+
+  const chartData = [
+    { name: 'Old Regime', tax: oldRegime.totalTax, color: winner === 'old' ? '#10b981' : '#94a3b8' },
+    { name: 'New Regime', tax: newRegime.totalTax, color: winner === 'new' ? '#10b981' : '#94a3b8' }
+  ];
 
   const RegimeColumn = ({ title, regimeData, isWinner }) => (
     <div
@@ -35,7 +40,7 @@ const TaxComparison = ({ data }) => {
           return (
             <div
               key={index}
-              className={`flex justify-between items-center py-2 px-3 rounded-lg ${
+              className={`flex justify-between items-center py-1.5 px-3 rounded-lg ${
                 isTotal
                   ? 'bg-gray-900 text-white font-bold text-lg'
                   : isTaxable
@@ -50,7 +55,7 @@ const TaxComparison = ({ data }) => {
             >
               <span className="text-sm">{step.label}</span>
               <span
-                className={`font-mono ${
+                className={`font-mono text-sm ${
                   isDeduction && step.amount > 0 ? 'text-green-700' : ''
                 }`}
               >
@@ -81,7 +86,7 @@ const TaxComparison = ({ data }) => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-12 px-4 pb-24">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -99,6 +104,42 @@ const TaxComparison = ({ data }) => {
               <p className="text-sm opacity-90 mt-1">by choosing the {winner === 'old' ? 'Old' : 'New'} Regime</p>
             </div>
           </div>
+        </div>
+
+        {/* Visual Chart Comparison */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-12 border-2 border-gray-100">
+           <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+             <RechartsBarChart className="w-5 h-5" />
+             Visual Comparison
+           </h3>
+           <div className="h-80 w-full">
+             <ResponsiveContainer width="100%" height="100%">
+               <RechartsBarChart
+                 data={chartData}
+                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+               >
+                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontWeight: 600 }} />
+                 <YAxis hide />
+                 <Tooltip 
+                   cursor={{ fill: '#f8fafc' }}
+                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                   formatter={(value) => [formatIndianCurrency(value), 'Total Tax']}
+                 />
+                 <Bar dataKey="tax" radius={[8, 8, 0, 0]} barSize={100}>
+                   {chartData.map((entry, index) => (
+                     <Cell key={`cell-${index}`} fill={entry.color} />
+                   ))}
+                   <LabelList 
+                     dataKey="tax" 
+                     position="top" 
+                     formatter={(value) => formatIndianCurrency(value)}
+                     style={{ fill: '#1e293b', fontWeight: 700, fontSize: '14px' }}
+                   />
+                 </Bar>
+               </RechartsBarChart>
+             </ResponsiveContainer>
+           </div>
         </div>
 
         {/* Recommendation */}
@@ -125,4 +166,4 @@ const TaxComparison = ({ data }) => {
   );
 };
 
-export default TaxComparison;
+export default TaxComparison;
